@@ -22,7 +22,8 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    outputs:
+      randomNum: ${{steps.Rand.outputs.randomNum}}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -38,6 +39,25 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
 
+      # Export a random number to be used later
+      - name: Generate Random number
+        id: Rand
+        run: |
+          randomNum=$RANDOM
+          echo "Random number is $randomNum"
+          echo "randomNum=$randomNum" >> $GITHUB_OUTPUT
+
+      # Use it in following step
+      - run: echo "Random number is ${{steps.Rand.outputs.randomNum}}" 
+        
+
+
+  comment: 
+    runs-on: ubuntu-latest
+    needs: [build]
+    env:
+      randomNum: ${{needs.build.outputs.randomNum}}
+    steps:
       - name: Add A Comment on issue
         if: github.event_name == 'issues'
         env:
@@ -52,4 +72,4 @@ jobs:
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               https://api.github.com/repos/$OWNER/$REPO/issues/$ISSUE_NUMBER/comments \
-              -d '{"body":"Thank you for opening this issue. We will look into it as soon as possible."}'
+              -d '{"body":"Thank you for opening this issue. We will look into it as soon as possible $randomNum."}'
