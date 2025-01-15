@@ -1,0 +1,22 @@
+name: Restrict Label Creation
+on:
+  label:
+    types: [created]
+jobs:
+  restrict-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Label Creator
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const allowedUsers = ['ahmedihabb2'];
+            const creator = context.payload.sender.login;
+            if (!allowedUsers.includes(creator)) {
+              await github.rest.issues.deleteLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: context.payload.label.name
+              });
+              core.setFailed(`Label creation is restricted. User ${creator} is not authorized.`);
+            }
