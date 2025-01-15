@@ -10,7 +10,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const allowedUsers = ['ahmedihabb2'];
+            const allowedUsers = ['ahmedihabb25'];
             const creator = context.payload.sender.login;
             if (!allowedUsers.includes(creator)) {
               await github.rest.issues.deleteLabel({
